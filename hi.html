@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aishe Biswas | Birthday Surprise ❤️</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- CDNs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/Draggable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        :root {
+            --pink: #ff758c;
+            --pink-dark: #d63031;
+            --pink-light: #ff7eb3;
+            --purple: #6c5ce7;
+            --purple-dark: #120324;
+            --gold: #d4af37;
+            --gold-light: #f9ca24;
+            --white: #fff9fc;
+            --text-color: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.15);
+            --shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--purple-dark);
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* BACKGROUND CANVAS FOR DUST PARTICLES */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .dark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, transparent 30%, rgba(5, 1, 10, 0.8) 100%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* SCREEN SYSTEM */
+        .screen-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: clamp(1rem, 4vw, 2.5rem);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+
+        /* GLASSMORPHISM CARD */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            border-radius: clamp(20px, 4vw, 28px);
+            padding: clamp(1.25rem, 5vw, 3rem);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .screen.active .glass-card {
+            transform: scale(1);
+        }
+
+        /* MUSIC & CONTROLS */
+        #music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.3s ease;
+        }
+
+        #music-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* PREMIUM TYPOGRAPHY */
+        .heading-cinematic {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 4.5vw + 0.6rem, 2.8rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 20%, var(--pink-light) 60%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+        }
+
+        .sub-script {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(1.25rem, 3vw + 0.5rem, 2rem);
+            color: var(--gold-light);
+            margin-bottom: 1.5rem;
+            text-shadow: 0 0 10px rgba(249, 202, 36, 0.3);
+        }
+
+        /* OPTIONS BUTTON GRID */
+        .choices-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            width: 100%;
+        }
+
+        .btn-cinematic {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            border: 1px solid var(--glass-border);
+            padding: 1.1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .btn-cinematic:hover {
+            background: linear-gradient(135deg, var(--pink), var(--purple));
+            border-color: rgba(255,255,255,0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(108, 92, 231, 0.4), 0 0 15px rgba(255, 117, 140, 0.3);
+        }
+
+        .btn-cinematic:active {
+            transform: translateY(1px);
+        }
+
+        /* 3D CANVAS FOR BOX / CAKE */
+        .three-canvas-container {
+            width: 100%;
+            height: clamp(200px, 35vh, 320px);
+            position: relative;
+            margin: 1.5rem 0;
+            border-radius: 16px;
+            overflow: visible;
+        }
+
+        .webgl-canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+        }
+
+        /* SHAKE AND RED SHADOW (WRONG CHOICE) */
+        .shake-glow {
+            animation: shake 0.4s ease-in-out;
+            box-shadow: 0 0 30px rgba(214, 48, 49, 0.8) !important;
+            border-color: var(--pink-dark) !important;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-12px); }
+            40%, 80% { transform: translateX(12px); }
+        }
+
+        /* DIALOG POPUPS */
+        .custom-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.85);
+            background: rgba(18, 3, 36, 0.95);
+            border: 1px solid var(--pink);
+            box-shadow: 0 20px 50px rgba(255, 117, 140, 0.4);
+            padding: 2.5rem;
+            border-radius: 24px;
+            z-index: 1000;
+            text-align: center;
+            max-width: 420px;
+            width: 90%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .custom-popup.active {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+
+        .popup-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* KNIFE INTERACTION STYLING */
+        #drag-area {
+            position: relative;
+            width: 100%;
+            height: clamp(260px, 45vh, 380px);
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.02);
+            overflow: visible;
+        }
+
+        #knife-element {
+            position: absolute;
+            width: 50px;
+            height: 140px;
+            left: calc(50% - 25px);
+            top: 20px;
+            cursor: grab;
+            z-index: 100;
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.5));
+            touch-action: none;
+        }
+
+        #knife-element:active {
+            cursor: grabbing;
+        }
+
+        .cutting-line-indicator {
+            position: absolute;
+            left: 50%;
+            top: 140px;
+            bottom: 20px;
+            width: 2px;
+            border-left: 2px dashed var(--gold);
+            opacity: 0.5;
+            z-index: 5;
+            transform: translateX(-50%);
+        }
+
+        /* 3D PARALLAX HAND WRAPPER */
+        .parallax-hand-container {
+            width: 320px;
+            height: 320px;
+            position: relative;
+            margin: 1rem auto;
+            perspective: 1200px;
+            cursor: pointer;
+        }
+
+        .parallax-hand-inner {
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease;
+            position: relative;
+        }
+
+        .hand-layer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+
+        /* CINEMATIC GREETING CARDS */
+        .cinematic-card-container {
+            width: 100%;
+            max-width: 550px;
+            min-height: 280px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1200px;
+        }
+
+        .cinematic-card {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 3rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+            opacity: 0;
+            transform: rotateX(15deg) translateZ(-50px);
+            display: none;
+        }
+
+        .card-text-glow {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.3rem;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 117, 140, 0.8), 0 0 40px rgba(108, 92, 231, 0.5);
+            line-height: 1.5;
+        }
+
+        /* GIFT REVEAL MODALS/DIVS */
+        .reveal-stage {
+            width: 100%;
+            min-height: 260px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: visible;
+        }
+
+        .revealed-gift-asset {
+            max-width: 220px;
+            max-height: 220px;
+            object-fit: contain;
+            opacity: 0;
+            transform: scale(0.3) rotate(-30deg);
+            position: absolute;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        /* TIMELINE MEMORIES */
+        .timeline-scroll-container {
+            width: 100%;
+            max-width: 600px;
+            height: 380px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* Custom scrollbar */
+        .timeline-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .timeline-scroll-container::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.1);
+        }
+        .timeline-scroll-container::-webkit-scrollbar-thumb {
+            background: var(--pink);
+            border-radius: 3px;
+        }
+
+        .timeline-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 3.5rem;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.8s ease;
+        }
+
+        .timeline-node.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .timeline-polaroid {
+            background: #ffffff;
+            padding: 10px 10px 30px 10px;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transform: rotate(var(--rot));
+            width: 200px;
+            color: #2d3436;
+            margin: 1rem 0;
+        }
+
+        .timeline-polaroid img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid #dfe6e9;
+        }
+
+        .timeline-caption {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.25rem;
+            text-align: center;
+            margin-top: 10px;
+            font-weight: 700;
+        }
+
+        /* TRANSITION SCREEN FADE */
+        #cinematic-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 600px) {
+            .heading-cinematic {
+                font-size: 2rem;
+            }
+            .sub-script {
+                font-size: 1.5rem;
+            }
+            .glass-card {
+                padding: 1.5rem;
+            }
+            .three-canvas-container {
+                height: 240px;
+            }
+            #drag-area {
+                height: 300px;
+            }
+            .cake-slice {
+                width: 210px !important;
+                height: 210px !important;
+            }
+            #cake-candle {
+                bottom: calc(50% + 60px) !important;
+            }
+            .parallax-hand-container {
+                width: 240px !important;
+                height: 240px !important;
+            }
+            .card-text-glow {
+                font-size: 1.8rem;
+            }
+            .timeline-polaroid {
+                width: 160px;
+            }
+            .timeline-polaroid img {
+                height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .screen {
+                padding: 1rem !important;
+            }
+            .glass-card {
+                padding: 1.25rem 1rem !important;
+                border-radius: 20px;
+            }
+            .heading-cinematic {
+                font-size: 1.7rem;
+            }
+            .sub-script {
+                font-size: 1.35rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .cake-slice {
+                width: 170px !important;
+                height: 170px !important;
+            }
+            #cake-candle {
+                bottom: calc(50% + 40px) !important;
+            }
+            .parallax-hand-container {
+                width: 190px !important;
+                height: 190px !important;
+            }
+            .heading-cinematic {
+                font-size: 1.5rem;
+            }
+            .sub-script {
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Stars Particles Dust Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <div class="dark-overlay"></div>
+
+    <!-- Screen transition white flash overlay -->
+    <div id="cinematic-flash"></div>
+
+    <!-- Music controls -->
+    <button id="music-toggle" onclick="toggleVolume()">🔊</button>
+
+    <!-- Dialog Popup -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="custom-popup" id="customPopup">
+        <h3 class="sub-script" style="color: var(--pink); font-size: 1.8rem; margin-bottom: 1rem;">Alert!</h3>
+        <p id="popupText" style="line-height: 1.5; margin-bottom: 1.5rem; font-weight: 600; font-size: 1.1rem;"></p>
+        <button class="btn-cinematic" onclick="closePopup()" style="padding: 0.6rem 2rem; font-size: 1rem;">Okay</button>
+    </div>
+
+    <!-- SCREEN CONTAINER -->
+    <div class="screen-container">
+
+        <!-- SCREEN 1: CINEMATIC OPENING SCREEN -->
+        <section id="screen-intro" class="screen active">
+            <div class="glass-card">
+                <h1 class="heading-cinematic">Special Surprise For Aishe Biswas ❤️</h1>
+                <p class="sub-script">An emotional cinematic journey made with love ✨</p>
+                
+                <div class="three-canvas-container" id="boxContainer">
+                    <canvas class="webgl-canvas" id="boxCanvas"></canvas>
+                </div>
+
+                <button class="btn-premium btn-cinematic" id="btnOpenIntro" onclick="openOpeningBox()">Open if you dare 👀</button>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: FIRST HEART QUESTION SCREEN -->
+        <section id="screen-quiz1" class="screen">
+            <div class="glass-card">
+                <h2 class="sub-script" style="font-size: 2.2rem; margin-bottom: 0.5rem; color: #fff;">You can enter my heart ❤️</h2>
+                <p style="font-weight: 600; color: var(--pink-light); margin-bottom: 1.5rem;">Please answer this question correctly:</p>
+                <h1 class="heading-cinematic" style="font-size: 1.8rem; margin-bottom: 1.5rem;">When we first talked to each other?</h1>
+
+                <div class="choices-grid" id="quiz1Choices">
+                    <button class="btn-cinematic" onclick="answerQuiz1(this, false)">May 23 2023</button>
+                    <button class="btn-cinematic" onclick="answerQuiz1(this, true)">May 24 2023</button>
+                    <button class="btn-cinematic" onclick="answerQuiz1(this, false)">May 24 2024</button>
+                    <button class="btn-cinematic" onclick="answerQuiz1(this, false)">June 1 2023</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: BIRTHDAY HERO SECTION -->
+        <section id="screen-birthday" class="screen">
+            <div class="glass-card" style="max-width: 650px;">
+                <h1 class="heading-cinematic" style="font-size: 2.3rem; margin-bottom: 0.5rem;">Happy Birthday My Dearest Aishe Biswas ❤️</h1>
+                <p class="sub-script" id="cakeInstruction" style="font-size: 1.4rem; margin-bottom: 1rem;">Drag the knife down to cut the birthday cake 🎂</p>
+
+                <div id="drag-area">
+                    <!-- Photo-based Cake Slices and Candle -->
+                    <div id="cake-wrapper" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: flex; align-items: center; justify-content: center; transform-style: preserve-3d; perspective: 1000px; pointer-events: none;">
+                        <!-- Left side of cake -->
+                        <div class="cake-slice left" style="position: absolute; width: 280px; height: 280px; overflow: hidden; clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%); transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));">
+                            <img src="images/cake.jpg" alt="Cake Left" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; border: 1px solid rgba(255,255,255,0.15);">
+                            <!-- Sliced cream frosting left -->
+                            <div class="cake-frosting-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); font-family: 'Dancing Script', cursive; font-size: clamp(1.2rem, 3.5vw, 1.8rem); font-weight: 800; color: #ffffff; text-shadow: 0 0 6px #d63031, 0 0 12px #ff758c, 0 0 18px #d4af37; text-align: center; width: 100%; line-height: 1.2; pointer-events: none;">
+                                Happy Birthday<br>Aishe Biswas ❤️
+                            </div>
+                        </div>
+                        <!-- Right side of cake -->
+                        <div class="cake-slice right" style="position: absolute; width: 280px; height: 280px; overflow: hidden; clip-path: polygon(50% 0, 100% 0, 100% 100%, 50% 100%); transition: transform 1.5s cubic-bezier(0.25, 1, 0.5, 1); filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));">
+                            <img src="images/cake.jpg" alt="Cake Right" style="width: 100%; height: 100%; object-fit: cover; border-radius: 24px; border: 1px solid rgba(255,255,255,0.15);">
+                            <!-- Sliced cream frosting right -->
+                            <div class="cake-frosting-text" style="position: absolute; top: 60%; left: 50%; transform: translate(-50%, -50%); font-family: 'Dancing Script', cursive; font-size: clamp(1.2rem, 3.5vw, 1.8rem); font-weight: 800; color: #ffffff; text-shadow: 0 0 6px #d63031, 0 0 12px #ff758c, 0 0 18px #d4af37; text-align: center; width: 100%; line-height: 1.2; pointer-events: none;">
+                                Happy Birthday<br>Aishe Biswas ❤️
+                            </div>
+                        </div>
+                        <!-- Candle stick & flickering flame overlay -->
+                        <div id="cake-candle" style="position: absolute; bottom: calc(50% + 95px); left: 50%; transform: translateX(-50%); width: 8px; height: 45px; background: linear-gradient(to right, #6c5ce7, #ff758c); border-radius: 4px; z-index: 10; transition: opacity 0.5s ease;">
+                            <div style="position: absolute; top: -5px; left: 3px; width: 2px; height: 5px; background: #333;"></div>
+                            <div class="candle-flame" style="position: absolute; top: -20px; left: -3px; width: 14px; height: 20px; background: radial-gradient(circle at 50% 100%, #fff 0%, #ffdf00 35%, #ff8c00 70%, #ff3300 100%); border-radius: 50% 50% 20% 20% / 60% 60% 40% 40%; filter: drop-shadow(0 0 6px rgba(255, 140, 0, 0.8)); animation: flame-flicker 0.15s ease-in-out infinite alternate; transform-origin: center bottom;"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Cutting line indicator -->
+                    <div class="cutting-line-indicator" id="cutLine"></div>
+
+                    <!-- Draggable knife SVG -->
+                    <div id="knife-element">
+                        <svg viewBox="0 0 100 280" style="width:100%; height:100%;">
+                            <!-- Handle -->
+                            <rect x="35" y="0" width="30" height="90" rx="10" fill="#2d3436" stroke="#fff" stroke-width="2"/>
+                            <rect x="42" y="10" width="16" height="70" rx="4" fill="#636e72"/>
+                            <!-- Guard -->
+                            <ellipse cx="50" cy="90" rx="25" ry="10" fill="#d4af37"/>
+                            <!-- Blade -->
+                            <path d="M 38 100 L 62 100 L 62 250 L 50 280 L 38 250 Z" fill="#b2bec3" stroke="#fff" stroke-width="2"/>
+                            <path d="M 50 100 L 50 260" fill="none" stroke="#dfe6e9" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div id="cake-success-container" style="display: none; margin-top: 1.5rem; animation: fadeIn 1s ease forwards;">
+                    <button class="btn-cinematic" onclick="goToHandInteraction()">Take your surprise gift 🎁</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: GIFT HAND INTERACTION -->
+        <section id="screen-hand" class="screen">
+            <div class="glass-card">
+                <h1 class="heading-cinematic" style="font-size: 2.2rem; margin-bottom: 0.5rem;">A Gift For You 🎁</h1>
+                <p class="sub-script" style="font-size: 1.3rem;">Tap the gift box to hold and open it</p>
+
+                <div class="parallax-hand-container" id="handContainer" onclick="openHandGift()">
+                    <div class="parallax-hand-inner" id="handInner">
+                        <!-- Custom composited hand layer -->
+                        <div class="hand-layer" style="transform: translateZ(0px);">
+                            <!-- Aesthetic luxury ribbon sparkles background -->
+                            <svg viewBox="0 0 100 100" style="width:100%; height:100%; opacity:0.6;">
+                                <circle cx="50" cy="50" r="40" fill="none" stroke="var(--pink-light)" stroke-width="1" stroke-dasharray="2 4"/>
+                            </svg>
+                        </div>
+                        <!-- Realistic gift box image -->
+                        <div class="hand-layer" id="handGiftBox" style="transform: translateZ(50px); display: flex; align-items: center; justify-content: center;">
+                            <img src="images/gift-box-render.png" alt="Luxury Gift Box" style="width: 70%; object-fit: contain; filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));">
+                        </div>
+                        <!-- Realistic hands presenting the box -->
+                        <div class="hand-layer" style="transform: translateZ(80px); display: flex; align-items: flex-end; justify-content: center; bottom: -30px;">
+                            <svg viewBox="0 0 200 120" style="width:85%; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.4));">
+                                <!-- Minimal elegant hands graphic -->
+                                <path d="M10,120 C40,90 60,65 80,75 C95,82 85,100 105,95 C115,92 110,80 125,75 C145,65 160,90 190,120 Z" fill="rgba(255, 220, 200, 0.9)" stroke="#fff" stroke-width="1.5"/>
+                                <path d="M70,80 C78,75 88,70 95,78" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                                <path d="M130,80 C122,75 112,70 105,78" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 5: LOVE QUESTION SECTION -->
+        <section id="screen-love-quiz" class="screen">
+            <div class="glass-card" id="loveQuizCard">
+                <h1 class="heading-cinematic" style="font-size: 2.2rem; margin-bottom: 1.5rem;">What do you think about me?</h1>
+
+                <div class="choices-grid">
+                    <button class="btn-cinematic" onclick="answerLoveQuiz('friend')">Friend</button>
+                    <button class="btn-cinematic" onclick="answerLoveQuiz('crush')">Crush</button>
+                    <button class="btn-cinematic" onclick="answerLoveQuiz('love')">Love</button>
+                    <button class="btn-cinematic" onclick="answerLoveQuiz('anna')">Anna</button>
+                </div>
+            </div>
+
+            <!-- Cinematic Emotional Card Sequence -->
+            <div class="cinematic-card-container" id="loveNarrativeContainer" style="display: none;">
+                <!-- Cards will display sequentially -->
+                <div class="cinematic-card" id="card1"><p class="card-text-glow">i am sorry for sutha vachadhuku ❤️</p></div>
+                <div class="cinematic-card" id="card2"><p class="card-text-glow">idha eppiti express pandra nu theriyala 😭</p></div>
+                <div class="cinematic-card" id="card3"><p class="card-text-glow">starting la unna pathu pesum podhu azhaga irruka apdinu dha pesuna…</p></div>
+                <div class="cinematic-card" id="card4"><p class="card-text-glow">poga poga nee enaku romba special ah maarita ❤️</p></div>
+                <div class="cinematic-card" id="card5"><p class="card-text-glow">enna soldradhu…<br>enaku therinja ponnungale nee dha azhagu 😭❤️</p></div>
+                <div class="cinematic-card" id="card6"><p class="card-text-glow">namma first meet panna naal innum marakkala…</p></div>
+                <div class="cinematic-card" id="card7"><p class="card-text-glow">un kooda time spend pannanu aase patruka…</p></div>
+                <div class="cinematic-card" id="card8"><p class="card-text-glow">un aala aaganum nu kooda aasa patruka…</p></div>
+                <div class="cinematic-card" id="card9"><p class="card-text-glow">but idhella enaku express panna theriyala…</p></div>
+                <div class="cinematic-card" id="card10">
+                    <p class="card-text-glow" style="font-size: 1.8rem; margin-bottom: 2rem;">
+                        i am not forcing you ❤️<br>your life your choice…<br>but now i shared my feelings…
+                    </p>
+                    <button class="btn-cinematic" onclick="goToMemoryQuiz()" style="font-size: 1.1rem; padding: 0.8rem 2.2rem;">Next Surprise ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 6: FINAL MEMORY QUESTION -->
+        <section id="screen-quiz3" class="screen">
+            <div class="glass-card">
+                <h1 class="heading-cinematic" style="font-size: 2.2rem; margin-bottom: 1.5rem;">Which date we first met?</h1>
+
+                <div class="choices-grid" id="quiz3Choices">
+                    <button class="btn-cinematic" onclick="answerQuiz3(this, false)">Jan 8 2024</button>
+                    <button class="btn-cinematic" onclick="answerQuiz3(this, true)">Jan 9 2024</button>
+                    <button class="btn-cinematic" onclick="answerQuiz3(this, false)">Feb 2 2024</button>
+                    <button class="btn-cinematic" onclick="answerQuiz3(this, false)">March 1 2024</button>
+                </div>
+
+                <div id="clue-container" style="margin-top: 1.5rem; display: none;">
+                    <button class="btn-cinematic" onclick="showClue()" style="background: rgba(212,175,55,0.1); border-color: var(--gold); color: var(--gold-light);">clue venuma? 👀</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 7: FINAL GIFT REVEAL SECTION -->
+        <section id="screen-reveal" class="screen">
+            <div class="glass-card" style="max-width: 580px;">
+                <h1 class="heading-cinematic" style="font-size: 2.2rem; margin-bottom: 0.5rem;" id="revealTitle">Unlocking Gift Vault...</h1>
+                <p class="sub-script" id="revealSub" style="font-size: 1.3rem; margin-bottom: 1.5rem;">Your customized surprises are here! ✨</p>
+
+                <!-- Box Canvas where the 3D gifts pop out -->
+                <div class="reveal-stage">
+                    <img class="revealed-gift-asset" id="gift-sunflower" src="images/sunflower-bouquet.png" alt="Sunflower Bouquet">
+                    <img class="revealed-gift-asset" id="gift-chocolate" src="images/dairy-milk.png" alt="Dairy Milk">
+                    <img class="revealed-gift-asset" id="gift-teddy" src="images/teddy.png" alt="Teddy Bear">
+                    <img class="revealed-gift-asset" id="gift-polaroid" src="images/our-photo.jpg" alt="Memory Polaroid" style="border: 10px solid #fff; border-bottom: 30px solid #fff; border-radius: 4px; box-shadow: var(--shadow);">
+                    
+                    <!-- Final Chest Container -->
+                    <div id="gift-chest" style="display: none; cursor: pointer; flex-direction: column; align-items: center; justify-content: center; position: absolute;" onclick="openSecretGallery()">
+                        <span style="font-size: 5rem; display: block; animation: floatChest 2s infinite ease-in-out;">📦✨</span>
+                        <p style="font-weight: 700; color: var(--gold-light); margin-top: 10px; text-shadow: 0 0 10px rgba(249, 202, 36,0.5);">OPEN FINAL SECRET CHEST</p>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn-cinematic" id="btnNextGift" onclick="cycleGifts()">Reveal Next Gift ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 8: FINAL SECRET SECTION & TIMELINE -->
+        <section id="screen-secret" class="screen">
+            <div class="glass-card" style="max-width: 650px;">
+                <h1 class="heading-cinematic" style="font-size: 2.2rem; margin-bottom: 0.5rem;">Last gift...</h1>
+                <p class="sub-script" style="font-size: 1.3rem;">Glimpse of our sweet journey</p>
+
+                <!-- Scrolling memory timeline -->
+                <div class="timeline-scroll-container" id="timelineScroll">
+                    <!-- Node 1 -->
+                    <div class="timeline-node">
+                        <p style="font-size: 0.85rem; font-weight: bold; color: var(--pink);">May 24 2023</p>
+                        <h4 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin:5px 0;">Our First Chat 💬</h4>
+                        <div class="timeline-polaroid" style="--rot: -3deg;">
+                            <img src="images/our-photo.jpg" alt="Memories">
+                            <div class="timeline-caption">Where it all began! ❤️</div>
+                        </div>
+                    </div>
+                    <!-- Node 2 -->
+                    <div class="timeline-node">
+                        <p style="font-size: 0.85rem; font-weight: bold; color: var(--pink);">Jan 9 2024</p>
+                        <h4 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin:5px 0;">First Meet Face-to-Face 🏢</h4>
+                        <div class="timeline-polaroid" style="--rot: 4deg;">
+                            <img src="images/sunflower.jpg" alt="Sunflower">
+                            <div class="timeline-caption">Bus stand & excitement 🌻</div>
+                        </div>
+                    </div>
+                    <!-- Node 3 -->
+                    <div class="timeline-node">
+                        <p style="font-size: 0.85rem; font-weight: bold; color: var(--pink);">Today</p>
+                        <h4 style="font-family:'Playfair Display',serif; font-size:1.15rem; margin:5px 0;">Celebrating You! 🎂</h4>
+                        <div class="timeline-polaroid" style="--rot: -2deg;">
+                            <img src="images/cake.jpg" alt="Cake">
+                            <div class="timeline-caption">Happy Birthday! 🎈</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="timeline-reveal-trigger" style="display: none; animation: fadeIn 1.5s ease forwards; margin-top: 1rem;">
+                    <h3 class="heading-cinematic" style="font-size: 2rem; margin-bottom: 1.5rem;" id="finalNote">Aishe Biswas, nee happy ah irundha podhum ❤️</h3>
+                    <button class="btn-cinematic" onclick="showEndingScreen()">Finish Journey ➔</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 9: ENDING SCREEN -->
+        <section id="screen-ending" class="screen">
+            <div class="glass-card" style="background: rgba(18, 2, 28, 0.95); border: 2px solid var(--gold);">
+                <span style="font-size: 6rem; display: block; animation: pulseEnd 1.5s infinite alternate;">💖✨</span>
+                <h1 class="heading-cinematic" style="font-size: 3.5rem; margin-top: 1rem; margin-bottom: 1.5rem; text-shadow: 0 0 30px rgba(255, 117, 140, 0.8);">THE END ❤️</h1>
+                <p class="sub-script" style="font-size: 1.5rem; color: #fff;">Hope this made you smile today!</p>
+                <button class="btn-cinematic" onclick="restartJourney()" style="margin-top: 2rem; font-size: 1rem; padding: 0.6rem 2rem;">Restart Surprise ↩</button>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- AUDIO ELEMENTS -->
+    <audio id="audio-piano" loop preload="auto">
+        <source src="https://ia800901.us.archive.org/27/items/ChopinNocturneOp.9No.2InEFlatMajor/Chopin-NocturneOp.9No.2.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="audio-birthday" preload="auto">
+        <source src="https://ia801309.us.archive.org/30/items/HappyBirthdayToYouOrchestral/Happy%20Birthday%20To%20You%20-%20Orchestral.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
+
+        /* 1. AUDIO SYNTHESIZER AND AUDIO HANDLERS */
+        const audioPiano = document.getElementById('audio-piano');
+        const audioBirthday = document.getElementById('audio-birthday');
+        let musicPlaying = false;
+        let activeMusicTrack = 'piano';
+
+        function playMusic() {
+            if (activeMusicTrack === 'piano') {
+                audioPiano.play().catch(err => console.log("Autoplay blocked:", err));
+            } else if (activeMusicTrack === 'birthday') {
+                audioBirthday.play().catch(err => console.log("Autoplay blocked:", err));
+            }
+            musicPlaying = true;
+            document.getElementById('music-toggle').textContent = '🔊';
+        }
+
+        function pauseMusic() {
+            audioPiano.pause();
+            audioBirthday.pause();
+            musicPlaying = false;
+            document.getElementById('music-toggle').textContent = '🔇';
+        }
+
+        function toggleVolume() {
+            if (musicPlaying) {
+                pauseMusic();
+            } else {
+                playMusic();
+            }
+        }
+
+        function switchMusicTrack(track) {
+            if (activeMusicTrack === track) return;
+            
+            const currentAudio = activeMusicTrack === 'piano' ? audioPiano : audioBirthday;
+            const nextAudio = track === 'piano' ? audioPiano : audioBirthday;
+            
+            activeMusicTrack = track;
+            
+            if (musicPlaying) {
+                gsap.to(currentAudio, {
+                    volume: 0,
+                    duration: 1.5,
+                    onComplete: () => {
+                        currentAudio.pause();
+                        nextAudio.volume = 0;
+                        nextAudio.play().catch(err => console.log(err));
+                        gsap.to(nextAudio, { volume: 1, duration: 1.5 });
+                    }
+                });
+            } else {
+                currentAudio.pause();
+                nextAudio.volume = 1;
+                nextAudio.play().catch(err => console.log(err));
+                musicPlaying = true;
+                document.getElementById('music-toggle').textContent = '🔊';
+            }
+        }
+
+        // Web Audio Synthesizer for instant feedback sounds
+        let audioContextInstance = null;
+        function getAudioContext() {
+            if (!audioContextInstance) {
+                audioContextInstance = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            return audioContextInstance;
+        }
+
+        function playClickSFX() {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(360, ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.12, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.1);
+            } catch(e) {
+                console.log(e);
+            }
+        }
+
+        function playMagicSFX() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.frequency.setValueAtTime(320, now);
+                osc.frequency.exponentialRampToValueAtTime(1400, now + 0.5);
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.linearRampToValueAtTime(0.18, now + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.005, now + 0.5);
+                osc.start();
+                osc.stop(now + 0.55);
+            } catch(e) {
+                console.log(e);
+            }
+        }
+
+
+        /* 2. DUST PARTICLES BACKGROUND SCENE */
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgContext = bgCanvas.getContext('2d');
+        let particlesArray = [];
+
+        function resizeBackground() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = window.innerHeight;
+        }
+        resizeBackground();
+        window.addEventListener('resize', resizeBackground);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.size = Math.random() * 2.5 + 0.5;
+                this.speedX = (Math.random() - 0.5) * 0.4;
+                this.speedY = (Math.random() - 0.5) * 0.4 - 0.1; // upward drift
+                this.opacity = Math.random() * 0.5 + 0.2;
+                this.fadeRate = Math.random() * 0.003 + 0.0015;
+            }
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                
+                // loop wrapping
+                if (this.y < 0) this.y = bgCanvas.height;
+                if (this.x < 0 || this.x > bgCanvas.width) this.x = Math.random() * bgCanvas.width;
+            }
+            draw() {
+                bgContext.beginPath();
+                bgContext.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                bgContext.fillStyle = `rgba(255, 117, 140, ${this.opacity})`;
+                bgContext.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            const count = window.innerWidth < 600 ? 40 : 100;
+            for (let i = 0; i < count; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+        initParticles();
+
+        function animateParticles() {
+            bgContext.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            particlesArray.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+
+        /* 3. ALERT DIALOG WRAPPERS */
+        const customPopup = document.getElementById('customPopup');
+        const popupOverlay = document.getElementById('popupOverlay');
+        const popupText = document.getElementById('popupText');
+
+        function openPopup(message) {
+            popupText.innerHTML = message;
+            popupOverlay.classList.add('active');
+            customPopup.classList.add('active');
+        }
+
+        function closePopup() {
+            playClickSFX();
+            popupOverlay.classList.remove('active');
+            customPopup.classList.remove('active');
+        }
+
+
+        /* 4. THREE.JS VIEWPORT RENDERER (SCREEN 1 ROTATING GIFT) */
+        let boxScene, boxCamera, boxRenderer;
+        let boxGroup;
+        let boxAnimationId;
+
+        function initBox3DScene() {
+            if (typeof THREE === 'undefined') {
+                console.warn("THREE is not defined. Falling back to CSS animation.");
+                showBoxFallback();
+                return;
+            }
+            try {
+                const container = document.getElementById('boxContainer');
+                if (!container) return;
+                const width = container.clientWidth || 300;
+                const height = container.clientHeight || 300;
+
+                boxScene = new THREE.Scene();
+                boxCamera = new THREE.PerspectiveCamera(45, width / height, 0.1, 10);
+                boxCamera.position.z = 4.5;
+
+                const canvas = document.getElementById('boxCanvas');
+                if (!canvas) return;
+
+                boxRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                boxRenderer.setSize(width, height);
+                boxRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+                boxScene.add(ambientLight);
+
+                const dirLight = new THREE.DirectionalLight(0xff758c, 1.2);
+                dirLight.position.set(5, 5, 5);
+                boxScene.add(dirLight);
+
+                const pointLight = new THREE.PointLight(0xd4af37, 1, 10);
+                pointLight.position.set(0, 0, 0); // Inside box later
+                boxScene.add(pointLight);
+
+                // Group holding the elements
+                boxGroup = new THREE.Group();
+                boxScene.add(boxGroup);
+
+                // Box materials
+                const boxMat = new THREE.MeshStandardMaterial({ color: 0x6c5ce7, roughness: 0.2, metalness: 0.3 });
+                const ribbonMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.1, metalness: 0.8 });
+
+                // Box body
+                const bodyGeo = new THREE.BoxGeometry(1.4, 1.4, 1.4);
+                const boxBody = new THREE.Mesh(bodyGeo, boxMat);
+                boxGroup.add(boxBody);
+
+                // Box lid
+                const lidGeo = new THREE.BoxGeometry(1.48, 0.35, 1.48);
+                const boxLid = new THREE.Mesh(lidGeo, boxMat);
+                boxLid.name = 'lid';
+                boxLid.position.y = 0.8;
+                boxGroup.add(boxLid);
+
+                // Vertical ribbon
+                const ribbonVGeo = new THREE.BoxGeometry(0.2, 1.44, 1.44);
+                const ribbonV = new THREE.Mesh(ribbonVGeo, ribbonMat);
+                boxGroup.add(ribbonV);
+
+                // Horizontal ribbon
+                const ribbonHGeo = new THREE.BoxGeometry(1.44, 1.44, 0.2);
+                const ribbonH = new THREE.Mesh(ribbonHGeo, ribbonMat);
+                boxGroup.add(ribbonH);
+
+                // Bow
+                const bowGeo = new THREE.TorusGeometry(0.2, 0.06, 12, 24);
+                const bowL = new THREE.Mesh(bowGeo, ribbonMat);
+                bowL.position.set(-0.15, 0.95, 0);
+                bowL.rotation.y = Math.PI / 4;
+                boxGroup.add(bowL);
+
+                const bowR = new THREE.Mesh(bowGeo, ribbonMat);
+                bowR.position.set(0.15, 0.95, 0);
+                bowR.rotation.y = -Math.PI / 4;
+                boxGroup.add(bowR);
+
+                // Animate scene
+                function render() {
+                    boxAnimationId = requestAnimationFrame(render);
+                    boxGroup.rotation.y += 0.015;
+                    boxGroup.rotation.x = Math.sin(Date.now() * 0.001) * 0.1;
+                    boxRenderer.render(boxScene, boxCamera);
+                }
+                render();
+            } catch (err) {
+                console.error("Three.js WebGL initialization failed. Falling back to CSS animation.", err);
+                showBoxFallback();
+            }
+        }
+
+        function showBoxFallback() {
+            const container = document.getElementById('boxContainer');
+            if (container) {
+                container.innerHTML = `
+                    <div class="fallback-box" style="font-size: 8rem; display: flex; align-items: center; justify-content: center; height: 100%; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5)); animation: pulseBox 2s infinite alternate;">
+                        🎁
+                    </div>
+                `;
+                if (!document.getElementById('fallback-keyframes')) {
+                    const style = document.createElement('style');
+                    style.id = 'fallback-keyframes';
+                    style.innerHTML = `
+                        @keyframes pulseBox {
+                            0% { transform: scale(0.9) rotate(0deg); filter: drop-shadow(0 5px 10px rgba(255,117,140,0.4)); }
+                            100% { transform: scale(1.1) rotate(5deg); filter: drop-shadow(0 15px 25px rgba(255,117,140,0.8)); }
+                        }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+        }
+
+        initBox3DScene();
+
+
+        /* 5. OPEN OPENING BOX ANIMATION */
+        let introOpeningStarted = false;
+
+        function openOpeningBox() {
+            if (introOpeningStarted) return;
+            introOpeningStarted = true;
+            playClickSFX();
+            playMusic();
+
+            const lid = boxGroup ? boxGroup.getObjectByName('lid') : null;
+            
+            // GSAP Cinematic timeline
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    if (typeof boxAnimationId !== 'undefined') cancelAnimationFrame(boxAnimationId);
+                    screenTransition('screen-intro', 'screen-quiz1');
+                }
+            });
+
+            if (boxGroup && lid && boxCamera) {
+                // Spin faster
+                tl.to(boxGroup.rotation, { y: boxGroup.rotation.y + 15, duration: 2, ease: "power2.inOut" });
+                
+                // Lid flies off
+                tl.to(lid.position, { y: 2.8, duration: 1, ease: "back.in(1.7)" }, "-=1.5");
+                tl.to(lid.rotation, { x: 3, z: 2, duration: 1.2 }, "-=1.5");
+                
+                // Camera zoom
+                tl.to(boxCamera.position, { z: 1.8, duration: 1.2, ease: "power3.in" }, "-=0.8");
+            } else {
+                tl.to('#boxContainer', { scale: 0.1, rotate: 360, duration: 1.5, ease: "power3.inOut" });
+            }
+            
+            // White flash light rays representation
+            tl.to('#cinematic-flash', { opacity: 1, duration: 0.4 }, "-=0.2");
+        }
+
+
+        /* 6. SCREEN TRANSITIONS */
+        function screenTransition(fromId, toId) {
+            const from = document.getElementById(fromId);
+            const to = document.getElementById(toId);
+
+            gsap.to('#cinematic-flash', {
+                opacity: 1,
+                duration: 0.3,
+                onComplete: () => {
+                    from.classList.remove('active');
+                    to.classList.add('active');
+                    
+                    // Trigger screen specific setups
+                    if (toId === 'screen-birthday') {
+                        initCakeTilt();
+                        initKnifeDraggable();
+                    } else if (toId === 'screen-secret') {
+                        triggerTimelineReveal();
+                    }
+                    
+                    gsap.to('#cinematic-flash', { opacity: 0, duration: 0.5, delay: 0.2 });
+                }
+            });
+        }
+
+
+        /* 7. FIRST QUIZ QUESTION HANDLERS */
+        function answerQuiz1(button, isCorrect) {
+            playClickSFX();
+            if (isCorrect) {
+                // Heart Unlock animation
+                button.style.background = 'linear-gradient(135deg, #10ac84, #00d2d3)';
+                button.style.borderColor = 'var(--gold)';
+                
+                confetti({
+                    particleCount: 80,
+                    spread: 60,
+                    origin: { y: 0.7 },
+                    colors: ['#ff758c', '#d4af37', '#ffffff']
+                });
+
+                setTimeout(() => {
+                    screenTransition('screen-quiz1', 'screen-birthday');
+                }, 1000);
+            } else {
+                // Shake and glowing error
+                button.classList.add('shake-glow');
+                openPopup("Ayyo marandhutiya 😭<br><span style='font-size:0.9rem; color:rgba(255,255,255,0.7);'>Please guess again bestie!</span>");
+                setTimeout(() => {
+                    button.classList.remove('shake-glow');
+                }, 1000);
+            }
+        }
+
+
+        /* 8. PHOTO-BASED CAKE HOVER TILT */
+        function initCakeTilt() {
+            if (isTouchDevice) return;
+            const container = document.getElementById('drag-area');
+            const wrapper = document.getElementById('cake-wrapper');
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const px = (x / rect.width) - 0.5;
+                const py = (y / rect.height) - 0.5;
+
+                const rotateX = py * -18; // Max 9 degrees
+                const rotateY = px * 18;  // Max 9 degrees
+
+                wrapper.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                wrapper.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        }
+
+
+        /* 9. DRAGGABLE CAKE CUTTING INTERACTION */
+        let cakeCutCompleted = false;
+
+        function initKnifeDraggable() {
+            gsap.registerPlugin(Draggable);
+            
+            // 1. Manual dragging interaction (retained as backup)
+            Draggable.create("#knife-element", {
+                type: "y,x",
+                bounds: "#drag-area",
+                onDrag: function() {
+                    const knifeY = this.y;
+                    const knifeX = this.x;
+                    if (!cakeCutCompleted && knifeY > 120 && Math.abs(knifeX) < 80) {
+                        triggerCakeCut();
+                    }
+                }
+            });
+
+            // 2. Automatic slide-to-cut on touch or click
+            const knife = document.getElementById('knife-element');
+            
+            function autoCut() {
+                if (cakeCutCompleted) return;
+                
+                // Disable dragging immediately to prevent interaction during animation
+                const draggableInstance = Draggable.get("#knife-element");
+                if (draggableInstance) draggableInstance.disable();
+                
+                // Smoothly animate the knife sliding down to cut the cake
+                gsap.to("#knife-element", {
+                    y: 190,
+                    x: 0,
+                    duration: 0.9,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        triggerCakeCut();
+                    }
+                });
+            }
+
+            knife.addEventListener('click', autoCut);
+            knife.addEventListener('touchstart', autoCut, { passive: true });
+        }
+
+        function triggerCakeCut() {
+            cakeCutCompleted = true;
+            playMagicSFX();
+
+            // Switch to Birthday Celebration Song
+            switchMusicTrack('birthday');
+
+            // Hide cut indicator dashed line and lock knife
+            gsap.to('#cutLine', { opacity: 0, duration: 0.3 });
+            
+            const draggableInstance = Draggable.get("#knife-element");
+            if (draggableInstance) draggableInstance.disable();
+            
+            gsap.to('#knife-element', { opacity: 0.4, scale: 0.8, duration: 0.4 });
+
+            // Flare candle flame wildly before fading out
+            gsap.to('.candle-flame', { scale: 2, filter: 'drop-shadow(0 0 15px rgba(255, 140, 0, 1))', duration: 0.2, repeat: 1, yoyo: true });
+            gsap.to('#cake-candle', { opacity: 0, duration: 0.5, delay: 0.3 });
+
+            // Animate splitting groups using GSAP (representing 3D slide and rotation of the photo slices)
+            gsap.to(".cake-slice.left", {
+                x: -75,
+                z: 40,
+                rotationY: -25,
+                duration: 1.5,
+                ease: "power3.out"
+            });
+            gsap.to(".cake-slice.right", {
+                x: 75,
+                z: -40,
+                rotationY: 25,
+                duration: 1.5,
+                ease: "power3.out"
+            });
+
+            // Camera Shake & Cinematic Zoom
+            gsap.fromTo(".glass-card", 
+                { x: -10 }, 
+                { x: 10, duration: 0.05, repeat: 12, yoyo: true, ease: "none", onComplete: () => gsap.set(".glass-card", { x: 0 }) }
+            );
+            gsap.to(".glass-card", { scale: 1.06, duration: 0.3, yoyo: true, repeat: 1, ease: "power2.out" });
+
+            // Glow birthday lights & warmer background
+            gsap.to("body", { backgroundColor: "#1c0316", duration: 1.5 });
+            gsap.to(".dark-overlay", {
+                background: "radial-gradient(circle at center, transparent 15%, rgba(45, 5, 30, 0.95) 100%)",
+                duration: 1.5
+            });
+
+            // Explode birthday cream particles
+            confetti({
+                particleCount: 200,
+                spread: 120,
+                origin: { y: 0.6 },
+                colors: ['#ffd3e2', '#ff758c', '#d4af37', '#ffffff']
+            });
+
+            // Floating hearts celebration sparkles animation
+            const heartsEnd = Date.now() + 1500;
+            (function frameHearts() {
+                confetti({
+                    particleCount: 4,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: ['#ff758c', '#ff7eb3']
+                });
+                confetti({
+                    particleCount: 4,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: ['#ff758c', '#ff7eb3']
+                });
+                if (Date.now() < heartsEnd) {
+                    requestAnimationFrame(frameHearts);
+                }
+            }());
+
+            document.getElementById('cakeInstruction').textContent = "Sweet celebration starts now! 🎉🎂";
+            document.getElementById('cakeInstruction').style.color = '#10ac84';
+
+            setTimeout(() => {
+                document.getElementById('cake-success-container').style.display = 'block';
+            }, 1200);
+        }
+
+        function goToHandInteraction() {
+            playClickSFX();
+            switchMusicTrack('piano'); // slowly fade into soft romantic emotional background music again
+            screenTransition('screen-birthday', 'screen-hand');
+            initHandParallax();
+        }
+
+
+        /* 10. SCREEN 4: GIFT HAND PARALLAX AND OPENING */
+        function initHandParallax() {
+            const container = document.getElementById('handContainer');
+            const inner = document.getElementById('handInner');
+
+            container.addEventListener('mousemove', (e) => {
+                const rect = container.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                const px = (x / rect.width) - 0.5;
+                const py = (y / rect.height) - 0.5;
+
+                inner.style.transform = `rotateX(${py * -25}deg) rotateY(${px * 25}deg)`;
+            });
+
+            container.addEventListener('mouseleave', () => {
+                inner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+            });
+        }
+
+        let handGiftOpened = false;
+
+        function openHandGift() {
+            if (handGiftOpened) return;
+            handGiftOpened = true;
+            playMagicSFX();
+
+            // Zoom hand forward animation
+            gsap.to('#handInner', { transform: 'scale(1.2) translateZ(40px)', duration: 0.8 });
+            
+            // Pop box open representation
+            gsap.to('#handGiftBox', { y: -30, rotateY: 180, duration: 0.8 });
+
+            setTimeout(() => {
+                screenTransition('screen-hand', 'screen-love-quiz');
+            }, 1000);
+        }
+
+
+        /* 11. LOVE QUESTION SECTION (BRANCHING AND TEXT SCROLL) */
+        function answerLoveQuiz(answer) {
+            playClickSFX();
+            const quizCard = document.getElementById('loveQuizCard');
+
+            if (answer === 'friend') {
+                quizCard.classList.add('shake-glow');
+                openPopup("nee inga dha varuvanu enaku theriyum pulla 😭<br>but unakana idam idhu illa en manasula ❤️");
+                setTimeout(() => {
+                    quizCard.classList.remove('shake-glow');
+                }, 1000);
+            } else if (answer === 'crush') {
+                openPopup("i am also crush with you da 😭<br>eppiti en mela unaku crush irruku nu solla vacha pathiya ❤️");
+            } else if (answer === 'anna') {
+                openPopup("idhella over nu unake theriyala pathiya 😭<br>appove nee vaanga ponga nu koopdum podhe nenacha anna dha nenaipa nu 😂");
+            } else if (answer === 'love') {
+                // Switch music back to soft piano
+                switchMusicTrack('piano');
+
+                // Correct path: Cinematic Narrative Sequencer
+                gsap.to(quizCard, {
+                    opacity: 0,
+                    scale: 0.8,
+                    duration: 0.5,
+                    onComplete: () => {
+                        quizCard.style.display = 'none';
+                        document.getElementById('loveNarrativeContainer').style.display = 'flex';
+                        startNarrativeSequence();
+                    }
+                });
+            }
+        }
+
+        let narrativeIdx = 1;
+        const totalNarrativeCards = 10;
+
+        function startNarrativeSequence() {
+            showNarrativeCard(narrativeIdx);
+        }
+
+        function showNarrativeCard(idx) {
+            const card = document.getElementById(`card${idx}`);
+            card.style.display = 'block';
+
+            // Glow and blur fade in
+            gsap.fromTo(card, 
+                { opacity: 0, filter: 'blur(10px)', y: 30 },
+                { opacity: 1, filter: 'blur(0px)', y: 0, duration: 1.2, ease: "power2.out" }
+            );
+
+            // Click listener to go next (or if it is card 10, wait for button click)
+            if (idx < totalNarrativeCards) {
+                setTimeout(() => {
+                    card.addEventListener('click', onCardNext, { once: true });
+                }, 1000); // 1s buffer before click registration
+            }
+        }
+
+        function onCardNext() {
+            playClickSFX();
+            const currentCard = document.getElementById(`card${narrativeIdx}`);
+            
+            gsap.to(currentCard, {
+                opacity: 0,
+                y: -30,
+                filter: 'blur(10px)',
+                duration: 0.6,
+                onComplete: () => {
+                    currentCard.style.display = 'none';
+                    narrativeIdx++;
+                    showNarrativeCard(narrativeIdx);
+                }
+            });
+        }
+
+        function goToMemoryQuiz() {
+            playClickSFX();
+            screenTransition('screen-love-quiz', 'screen-quiz3');
+        }
+
+
+        /* 12. FINAL MEMORY QUIZ FLOW */
+        let wrongQuiz3Guesses = 0;
+
+        function answerQuiz3(button, isCorrect) {
+            playClickSFX();
+            if (isCorrect) {
+                button.style.background = 'linear-gradient(135deg, #10ac84, #00d2d3)';
+                button.style.borderColor = 'var(--gold)';
+
+                // Golden Confetti burst
+                confetti({
+                    particleCount: 120,
+                    spread: 80,
+                    origin: { y: 0.7 },
+                    colors: ['#d4af37', '#f9ca24', '#ffffff']
+                });
+
+                setTimeout(() => {
+                    screenTransition('screen-quiz3', 'screen-reveal');
+                }, 1000);
+
+            } else {
+                button.classList.add('shake-glow');
+                wrongQuiz3Guesses++;
+                setTimeout(() => {
+                    button.classList.remove('shake-glow');
+                }, 1000);
+
+                if (wrongQuiz3Guesses >= 1) {
+                    document.getElementById('clue-container').style.display = 'block';
+                }
+            }
+        }
+
+        function showClue() {
+            playClickSFX();
+            openPopup("<span style='font-size:1.3rem; color:var(--pink-light);'>Clue:</span><br>bus stand + nervous + excitement 😭❤️");
+        }
+
+
+        /* 13. SCREEN 7: GIFT REVEAL CYCLER */
+        let giftCycleIndex = 0;
+        const giftList = ['gift-sunflower', 'gift-chocolate', 'gift-teddy', 'gift-polaroid', 'gift-chest'];
+
+        function cycleGifts() {
+            playClickSFX();
+            const btn = document.getElementById('btnNextGift');
+            const subText = document.getElementById('revealSub');
+
+            if (giftCycleIndex < giftList.length - 1) {
+                // Hide previous gift
+                if (giftCycleIndex > 0) {
+                    gsap.to(`#${giftList[giftCycleIndex-1]}`, { opacity: 0, scale: 0.3, y: -100, duration: 0.5 });
+                }
+
+                const currentGiftId = giftList[giftCycleIndex];
+                const giftEl = document.getElementById(currentGiftId);
+                
+                if (currentGiftId === 'gift-chest') {
+                    giftEl.style.display = 'flex';
+                } else {
+                    giftEl.style.display = 'block';
+                }
+
+                // Play pop/unwrap chimes
+                playMagicSFX();
+
+                // GSAP pop animation
+                gsap.fromTo(giftEl,
+                    { opacity: 0, scale: 0.2, rotation: -30 },
+                    { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: "back.out(1.5)" }
+                );
+
+                // Specific unwrap/bounce configs
+                if (currentGiftId === 'gift-chocolate') {
+                    subText.textContent = "Dairy Milk Chocolate unwrapped for you! 🍫";
+                    // Custom scale wiggle
+                    gsap.to(giftEl, { scale: 1.1, repeat: 1, yoyo: true, duration: 0.3, delay: 0.6 });
+                } else if (currentGiftId === 'gift-teddy') {
+                    subText.textContent = "A cute teddy bear floats down! 🧸";
+                    // Cute bounce
+                    gsap.to(giftEl, { y: -20, repeat: -1, yoyo: true, duration: 0.8, ease: "power1.inOut" });
+                } else if (currentGiftId === 'gift-sunflower') {
+                    subText.textContent = "Vibrant sunflower bouquet drifts in! 🌻";
+                    // Floating drift
+                    gsap.to(giftEl, { y: 15, repeat: -1, yoyo: true, duration: 1.2, ease: "power1.inOut" });
+                } else if (currentGiftId === 'gift-polaroid') {
+                    subText.textContent = "A cherished polaroid memory of us! 📸";
+                }
+
+                giftCycleIndex++;
+
+                if (giftCycleIndex === giftList.length) {
+                    btn.style.display = 'none';
+                }
+            } else {
+                // Last chest trigger
+                const lastGiftId = giftList[giftCycleIndex-1];
+                gsap.to(`#${lastGiftId}`, { opacity: 0, scale: 0.3, duration: 0.5 });
+                
+                const chest = document.getElementById('gift-chest');
+                chest.style.display = 'flex';
+                playMagicSFX();
+
+                gsap.fromTo(chest,
+                    { opacity: 0, scale: 0.2 },
+                    { opacity: 1, scale: 1, duration: 0.8, ease: "back.out(1.5)" }
+                );
+
+                btn.style.display = 'none';
+                subText.textContent = "The final secret has been revealed! Click the box.";
+            }
+        }
+
+        function openSecretGallery() {
+            playMagicSFX();
+            screenTransition('screen-reveal', 'screen-secret');
+        }
+
+
+        /* 14. SCREEN 8: MEMORY TIMELINE REVEAL */
+        function triggerTimelineReveal() {
+            // Sequential timeline node fades
+            const nodes = document.querySelectorAll('.timeline-node');
+            nodes.forEach((node, idx) => {
+                setTimeout(() => {
+                    node.classList.add('visible');
+                }, idx * 1000 + 400);
+            });
+
+            // After timeline nodes finish, reveal final note button
+            setTimeout(() => {
+                document.getElementById('timeline-reveal-trigger').style.display = 'block';
+            }, nodes.length * 1000 + 800);
+        }
+
+        function showEndingScreen() {
+            playClickSFX();
+            screenTransition('screen-secret', 'screen-ending');
+            
+            // final grand confetti cascade
+            setTimeout(() => {
+                const duration = 4 * 1000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 3,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0 }
+                    });
+                    confetti({
+                        particleCount: 3,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1 }
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }, 600);
+        }
+
+        /* RESTART JOURNEY SYSTEM */
+        function restartJourney() {
+            playClickSFX();
+            // Reset state parameters
+            introOpeningStarted = false;
+            cakeCutCompleted = false;
+            handGiftOpened = false;
+            narrativeIdx = 1;
+            wrongQuiz3Guesses = 0;
+            giftCycleIndex = 0;
+
+            // Reset CSS displays
+            document.getElementById('clue-container').style.display = 'none';
+            document.getElementById('cake-success-container').style.display = 'none';
+            document.getElementById('loveNarrativeContainer').style.display = 'none';
+            document.getElementById('loveQuizCard').style.display = 'block';
+            document.getElementById('loveQuizCard').style.opacity = 1;
+            document.getElementById('loveQuizCard').style.transform = 'scale(1)';
+            document.getElementById('btnNextGift').style.display = 'block';
+            document.getElementById('timeline-reveal-trigger').style.display = 'none';
+
+            // Reset image displays in reveal
+            giftList.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.style.display = 'none';
+                    el.style.opacity = 0;
+                    el.style.transform = 'scale(0.3)';
+                    // Kill any active timeline floats
+                    gsap.killTweensOf(el);
+                }
+            });
+
+            // Remove visible classes on timeline
+            const nodes = document.querySelectorAll('.timeline-node');
+            nodes.forEach(node => node.classList.remove('visible'));
+
+            // Reset cake slices, candle, instructions, and knife elements
+            gsap.set(".cake-slice.left", { x: 0, z: 0, rotationY: 0 });
+            gsap.set(".cake-slice.right", { x: 0, z: 0, rotationY: 0 });
+            gsap.set("#cake-candle", { opacity: 1 });
+            document.getElementById('cakeInstruction').textContent = "Drag the knife down to cut the birthday cake 🎂";
+            document.getElementById('cakeInstruction').style.color = '#ffffff';
+            gsap.set('#cutLine', { opacity: 0.5 });
+            gsap.set('#knife-element', { opacity: 1, scale: 1, y: 0, x: 0 });
+            const knifeDraggable = Draggable.get("#knife-element");
+            if (knifeDraggable) knifeDraggable.enable();
+
+            // Re-render opening 3D scene
+            if (boxGroup && boxCamera) {
+                boxGroup.position.set(0,0,0);
+                boxGroup.rotation.set(0,0,0);
+                const lid = boxGroup.getObjectByName('lid');
+                if (lid) {
+                    lid.position.set(0, 0.8, 0);
+                    lid.rotation.set(0,0,0);
+                }
+                boxCamera.position.z = 4.5;
+            } else {
+                gsap.set('#boxContainer', { scale: 1, rotate: 0 });
+            }
+            
+            // Switch back to opening screen
+            switchMusicTrack('piano');
+            screenTransition('screen-ending', 'screen-intro');
+            initBox3DScene();
+        }
+    </script>
+</body>
+</html>
